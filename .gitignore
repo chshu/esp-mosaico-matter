@@ -27,3 +27,6 @@ examples/*/.cache/
 
 # log
 *.log
+
+# CI firmware and toolchain output
+/build/
