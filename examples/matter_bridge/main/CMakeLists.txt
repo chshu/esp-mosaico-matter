@@ -4,6 +4,10 @@ idf_component_register(SRCS "main.cpp" "bridge_battery.c" "router_config.c" "rou
         gen_bmgr_codes esp_board_manager nvs_flash esp_wifi esp_netif
         littlefs claw_core claw_event_router claw_hw_registry heap)
 
+if(MOSAICO_IRISFW_UTILS)
+    idf_component_optional_requires(PRIVATE esp_iris esp_mosaico_app_recovery)
+endif()
+
 # CONFIG_* is unavailable during IDF's early dependency expansion. The
 # top-level CMakeLists adds these components; attach their
 # include paths and link dependencies here, after configuration is loaded.

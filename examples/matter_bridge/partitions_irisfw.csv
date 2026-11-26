@@ -1,0 +1,12 @@
+# Retained Vibe Mode v2 layout from mosaico-tools/product_contract.json.
+# Name,    Type, SubType, Offset,   Size
+otadata,   data, ota,     0x9000,   8K
+phy_init,  data, phy,     0xB000,   4K
+sysmeta,   data, nvs,     0xC000,   80K
+vibe_mode, app,  test,    0x20000,  1792K
+coredump,  data, coredump,0x1E0000, 128K
+nvs,       data, nvs,     0x200000, 64K
+main_app,  app,  ota_0,   0x210000, 8192K
+ui_apps,   data, 0x41,    0xA20000, 2304K
+system,    data, littlefs,0xC60000, 3000K
+storage,   data, littlefs,0xF4E000, 512K

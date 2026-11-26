@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(UPSTREAM "${REPO_ROOT}/third_party/esp-mosaico-claw")
+if(MOSAICO_IRISFW_UTILS)
+    list(APPEND EXTRA_COMPONENT_DIRS
+        "${MOSAICO_IRISFW_UTILS}/ESP-Iris/components/esp_iris"
+        "${MOSAICO_IRISFW_UTILS}/mosaico-tools/components/esp_mosaico_app_recovery"
+        "${MOSAICO_IRISFW_UTILS}/mosaico-tools/components/esp_mosaico_boot")
+endif()
 # The bridge uses the Matter server backend; exclude controller components.
 list(APPEND EXCLUDE_COMPONENTS local_fabric claw_matter_controller thread_border_router)
 list(APPEND EXTRA_COMPONENT_DIRS
@@ -37,13 +43,26 @@ project(matter_bridge VERSION 0.1.0)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/dependency_compat.cmake")
 
+if(CONFIG_PARTITION_TABLE_CUSTOM_FILENAME STREQUAL "partitions_irisfw.csv")
+    if(NOT CONFIG_PARTITION_TABLE_OFFSET EQUAL 0x8000)
+        message(FATAL_ERROR "The irisfw profile requires partition table offset 0x8000")
+    endif()
+    add_custom_target(bridge_reject_direct_flash
+        COMMAND ${CMAKE_COMMAND} -E echo
+            "This profile retains Recovery. Install the irisfw bundle through Vibe Mode."
+        COMMAND ${CMAKE_COMMAND} -E false
+        VERBATIM)
+    add_dependencies(flash bridge_reject_direct_flash)
+    add_dependencies(app-flash bridge_reject_direct_flash)
+endif()
+
 if(NOT CONFIG_PARTITION_TABLE_CUSTOM OR NOT CONFIG_SPIRAM OR
    NOT CONFIG_ESPTOOLPY_FLASHSIZE_16MB)
     # Leave configuration usable so menuconfig can repair an existing sdkconfig.
     message(WARNING
         "matter_bridge requires a custom partition table, 16 MB flash and PSRAM. "
         "An existing sdkconfig may have retained ESP-IDF defaults. Run idf.py menuconfig: "
-        "select partitions_16MB.csv with offset 0x9000, 16 MB flash, "
+        "select partitions_16MB.csv with offset 0x9000 (or the irisfw profile), 16 MB flash, "
         "and octal PSRAM at 250 MHz.")
 endif()
 

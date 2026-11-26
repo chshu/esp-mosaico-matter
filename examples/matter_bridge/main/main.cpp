@@ -34,6 +34,12 @@
 #include "nvs_flash.h"
 #include "esp_app_desc.h"
 #include "trial_auth.h"
+#if CONFIG_ESP_IRIS_ENABLE
+#include "esp_iris.h"
+extern "C" {
+#include "iris_ota_support.h"
+}
+#endif
 #if CONFIG_APP_CLAW_MOSAIC_GSP_ENABLE
 #include "app_asr.h"
 #include "bridge_battery.h"
@@ -483,6 +489,9 @@ static void mount_filesystems()
 }
 extern "C" void app_main()
 {
+#if CONFIG_ESP_IRIS_ENABLE
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_iris_boot_probe());
+#endif
     ESP_ERROR_CHECK(bridge_memory_init());
     bridge_memory_log("before storage");
     ESP_ERROR_CHECK(nvs_flash_init()); /* Never silently erase Matter identities on error. */
@@ -563,6 +572,10 @@ extern "C" void app_main()
     };
     ESP_ERROR_CHECK(claw_matter_bridge_start(&bridge_config));
     bridge_memory_log("after Matter");
+#if CONFIG_ESP_IRIS_ENABLE
+    iris_ota_support_start();
+    bridge_memory_log("after Iris");
+#endif
 #if CONFIG_APP_CLAW_MOSAIC_GSP_ENABLE
     ESP_ERROR_CHECK(mosaico_hotplug_bridge_start(s_matter_dev_mngr));
     mosaic_settings_ops_t settings_ops{};

@@ -32,20 +32,26 @@ build_firmware:
   script:
     - . tools/ci/setup_idf.sh
     - |
-      for variant in matter_hub_claw matter_hub_xiaozhi matter_hub_no_agent matter_bridge; do
+      for variant in matter_hub_claw matter_hub_xiaozhi matter_hub_no_agent matter_bridge matter_bridge_irisfw; do
         project=examples/matter_hub
-        if [ "$variant" = matter_bridge ]; then
+        build_subdir=build
+        if [ "$variant" = matter_bridge ] || [ "$variant" = matter_bridge_irisfw ]; then
           project=examples/matter_bridge
+        fi
+        sdkconfig="$project/sdkconfig"
+        if [ "$variant" = matter_bridge_irisfw ]; then
+          build_subdir=build-irisfw
+          sdkconfig="$project/$build_subdir/sdkconfig"
         fi
         # CMake patches managed dependencies; fullclean refuses to remove them.
         # Reset generated CI files directly so each variant starts fresh.
-        rm -rf "$project/build" "$project/managed_components"
+        rm -rf "$project/$build_subdir" "$project/managed_components"
         rm -f "$project/sdkconfig" "$project/sdkconfig.old"
         bash tools/ci/build_firmware.sh "$variant"
         # Save each variant's metadata before the next build replaces it.
         artifact_dir="build/firmware/configs/$variant"
         mkdir -p "$artifact_dir"
-        cp "$project/build/flasher_args.json" "$project/sdkconfig" \
+        cp "$project/$build_subdir/flasher_args.json" "$sdkconfig" \
           "$project/dependencies.lock" "$artifact_dir/"
       done
   artifacts:

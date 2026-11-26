@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package merged firmware and the download page for GitHub Pages."""
+"""Package merged firmware and its download page for GitHub Pages."""
 
 import html
 import os
@@ -16,7 +16,7 @@ def main():
     revision = None
     for variant in VARIANTS:
         image = images / f'{variant}.bin'
-        record = image.with_suffix('.txt')
+        record = images / f'{variant}.txt'
         for path in (image, record):
             if not path.is_file() or not path.stat().st_size:
                 raise SystemExit(f'Missing firmware artifact: {path}')

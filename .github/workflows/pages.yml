@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [matter_hub_claw, matter_hub_xiaozhi, matter_hub_no_agent, matter_bridge]
+        variant: [matter_hub_claw, matter_hub_xiaozhi, matter_hub_no_agent, matter_bridge, matter_bridge_irisfw]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,7 +31,7 @@ jobs:
           restore-keys: |
             ccache-${{ runner.os }}-${{ runner.arch }}-${{ matrix.variant }}-
             ccache-${{ runner.os }}-${{ runner.arch }}-
-      - name: Build merged firmware
+      - name: Build firmware
         shell: bash
         env:
           IDF_CCACHE_ENABLE: "1"
